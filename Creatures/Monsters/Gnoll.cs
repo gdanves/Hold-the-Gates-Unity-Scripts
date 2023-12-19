@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class Gnoll : Monster
 {
+    public BoxCollider2D m_attackCollider;
+
     protected override void Awake()
     {
         base.Awake();
-        SetStats(new List<int>{38, 25, 35, 27, 45}); // atk, hp, def, defm, spd
     }
 
     // Start is called before the first frame update
@@ -20,5 +21,26 @@ public class Gnoll : Monster
     protected override void Update()
     {
         base.Update();
+    }
+
+    protected override bool Attack()
+    {
+        if(!CanUseSkills() || CanApproachTarget())
+            return false;
+
+        m_animator.Play("Attack");
+        AddSkillTime(1500);
+        AddSelfStunTime(800);
+        Invoke("ApplyAttackDamage", 0.3f);
+        return true;
+    }
+
+    private void ApplyAttackDamage()
+    {
+        if(!IsAlive() || !m_target)
+            return;
+
+        if(m_attackCollider.IsTouching(m_target.GetHitboxCollider()))
+            m_target.TakeDamage(gameObject, GetAttack());
     }
 }

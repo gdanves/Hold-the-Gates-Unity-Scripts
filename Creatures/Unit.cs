@@ -19,5 +19,44 @@ public class Unit : Creature
     protected override void Update()
     {
         base.Update();
+
+        if(!IsAlive())
+            return;
+
+        if(!m_target || !CanTargetCreature(m_target))
+            m_target = FindClosestTarget("Monster");
+
+        if(m_target) {
+            if(!CanAttackTarget())
+                ApproachTarget();
+            else if(!Attack()) {
+                if(!DistanceTarget())
+                    ApproachTarget();
+            }
+        }
+    }
+
+    protected virtual bool ApproachTarget()
+    {
+        if(!CanWalk() || !CanApproachTarget())
+            return false;
+
+        Vector2 offset = GetHitboxCenterPosition() - new Vector2(transform.position.x, transform.position.y);
+        transform.position = Vector2.MoveTowards(transform.position, m_target.GetHitboxCenterPosition() - offset, GetSpeedFactor() * Time.deltaTime);
+        m_walking = true;
+        TurnToTarget();
+        return true;
+    }
+
+    protected virtual bool DistanceTarget()
+    {
+        if(!CanWalk() || !CanDistanceTarget())
+            return false;
+
+        Vector2 offset = GetHitboxCenterPosition() - new Vector2(transform.position.x, transform.position.y);
+        transform.position = Vector2.MoveTowards(transform.position, m_target.GetHitboxCenterPosition() - offset, -GetSpeedFactor() * Time.deltaTime);
+        m_walking = true;
+        TurnToTarget();
+        return true;
     }
 }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 public class CreatureStat
 {
@@ -9,8 +10,7 @@ public class CreatureStat
  
     public CreatureStat(int baseValue = 50)
     {
-        m_value = (float)baseValue;
-        m_baseValue = baseValue;
+        SetBaseValue(baseValue);
         m_statModifiersRaw = new List<float>();
         m_statModifiersPercent = new List<float>();
     }
@@ -19,5 +19,20 @@ public class CreatureStat
     {
         m_value = (float)baseValue;
         m_baseValue = baseValue;
+    }
+
+    public void AddValue(int value)
+    {
+        m_value = Mathf.Max(0, m_value + value);
+    }
+
+    public float GetValue()
+    {
+        return m_value;
+    }
+
+    public int GetBaseValue()
+    {
+        return m_baseValue;
     }
 }

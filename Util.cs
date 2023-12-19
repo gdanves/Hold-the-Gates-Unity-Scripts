@@ -4,8 +4,8 @@ using UnityEngine;
 
 static class Util
 {
-    public static float GetTimeMillis()
+    public static int GetTimeMillis()
     {
-        return Mathf.Round(Time.time*1000);
+        return (int)Mathf.Round(Time.time * 1000);
     }
 }
