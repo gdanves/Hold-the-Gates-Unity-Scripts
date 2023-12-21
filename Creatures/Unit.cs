@@ -26,14 +26,8 @@ public class Unit : Creature
         if(!m_target || !CanTargetCreature(m_target))
             m_target = FindClosestTarget("Monster");
 
-        if(m_target) {
-            if(!CanAttackTarget())
-                ApproachTarget();
-            else if(!Attack()) {
-                if(!DistanceTarget())
-                    ApproachTarget();
-            }
-        }
+        if(m_target && CanAttackTarget())
+            Attack();
     }
 
     protected virtual bool ApproachTarget()

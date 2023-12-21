@@ -46,6 +46,7 @@ public class Creature : MonoBehaviour
     protected Creature m_target;
     protected bool m_walking = false;
     protected Vector2 m_dir = new Vector2(0, 0);
+    protected GameManager m_gameManager;
 
     private int[] m_conditionTimes = new int[(int)Condition.Last];
     private List<CreatureStat> m_stats = new List<CreatureStat>();
@@ -54,6 +55,7 @@ public class Creature : MonoBehaviour
     {
         m_animator = GetComponent<Animator>();
         m_spriteRenderer = GetComponent<SpriteRenderer>();
+        m_gameManager = FindObjectOfType<GameManager>();
 
         for(Stat i = 0; i <= Stat.Last; i++)
             m_stats.Add(new CreatureStat());
@@ -217,7 +219,7 @@ public class Creature : MonoBehaviour
 
     public float GetDistanceTo(Creature creature)
     {
-        return Math.GetDistanceBetween(GetHitboxCenterPosition(), creature.GetHitboxCenterPosition());
+        return MathExt.GetDistanceBetween(GetHitboxCenterPosition(), creature.GetHitboxCenterPosition());
     }
 
     protected void SetStats(params int[] list)
@@ -234,7 +236,7 @@ public class Creature : MonoBehaviour
         foreach(GameObject target in targets) {
             if(!target.GetComponent<Creature>().IsAlive())
                 continue;
-            float distance = Math.GetDistanceBetween(transform.position, target.transform.position);
+            float distance = MathExt.GetDistanceBetween(transform.position, target.transform.position);
             if(distance <= m_targetViewRange && (!closestTarget || distance < closestDistance)) {
                 closestDistance = distance;
                 closestTarget = target.GetComponent<Creature>();

@@ -42,7 +42,7 @@ public class Archer : Unit
 
     protected override bool Attack()
     {
-        if(!CanUseSkills() || CanApproachTarget())
+        if(!CanUseSkills())
             return false;
 
         TurnToTarget();
@@ -85,7 +85,7 @@ public class Archer : Unit
         Quaternion rotation = Quaternion.Euler(0, 0, Mathf.Atan2(m_dir.y, m_dir.x) * Mathf.Rad2Deg);
         GameObject arrow = (GameObject) Instantiate(m_arrowPrefab, m_arrowSpawnFront.position, rotation);
         arrow.transform.localScale = transform.localScale;
-        arrow.GetComponent<Rigidbody2D>().velocity = m_dir * 10f;
+        arrow.GetComponent<Rigidbody2D>().velocity = m_dir * 15f;
         arrow.GetComponent<Projectile>().SetAttacker(gameObject);
         arrow.GetComponent<Projectile>().SetTargetTag("Monster");
         arrow.GetComponent<Projectile>().SetDamage(GetAttack());

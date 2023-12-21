@@ -4,13 +4,15 @@ using UnityEngine;
 
 public class Monster : Creature
 {
+    [Header("Monster")]
+    [SerializeField] int m_goldReward = 0;
+
     private Transform m_waypoints;
-    private Vector3 m_gatePosition;
+    int m_nextWaypoint = 1;
 
     protected override void Awake()
     {
         m_waypoints = GameObject.Find("Waypoints").transform;
-        m_gatePosition = GameObject.Find("Gate").transform.position;
         base.Awake();
     }
 
@@ -28,19 +30,13 @@ public class Monster : Creature
         if(!IsAlive())
             return;
 
-        if(!m_target || !CanTargetCreature(m_target))
-            m_target = FindClosestTarget("Unit");
+        if(!m_target)
+            m_target = GameObject.Find("Gate").GetComponent<Creature>();
 
-        if(m_target) {
-            if(!CanAttackTarget())
-                ApproachTarget();
-            else if(!Attack()) {
-                if(!DistanceTarget())
-                    ApproachTarget();
-            }
-        } else if(CanWalk()) {
-            FollowWaypoints();
-        }
+        if(CanAttackTarget() && !CanApproachTarget())
+            Attack();
+        else if(CanWalk() && !FollowWaypoints() && m_target)
+            ApproachTarget();
     }
 
     protected virtual bool ApproachTarget()
@@ -67,36 +63,41 @@ public class Monster : Creature
         return true;
     }
 
-    protected virtual void FollowWaypoints()
+    protected virtual bool FollowWaypoints()
     {
-        Transform targetWaypoint = transform;
-        float closestDistance = Mathf.Infinity;
+        Vector3 targetPosition = transform.position;
         bool foundWaypoint = false;
+        int waypointIndex = 0;
         foreach(Transform child in m_waypoints) {
-            float waypointDistanceToMonster = Math.GetDistanceBetween(transform.position, child.position);
-            float waypointDistanceToGate = Math.GetDistanceBetween(m_gatePosition, child.position);
-            float monsterDistanceToGate = Math.GetDistanceBetween(m_gatePosition, transform.position);
-            if(waypointDistanceToMonster > 2.5f) { 
-                if(monsterDistanceToGate < waypointDistanceToGate) {
-                    // add extra distance to avoid being stuck between waypoints
-                    waypointDistanceToMonster += 10f;
-                }
+            waypointIndex++;
+            Vector3 childPosition = child.position + new Vector3(0.25f, 0.45f, 0);
 
-                if(waypointDistanceToMonster < closestDistance) {
-                    closestDistance = waypointDistanceToMonster;
-                    targetWaypoint = child;
-                    foundWaypoint = true;
-                }
+            float waypointDistance = MathExt.GetDistanceBetween(transform.position, childPosition);
+            if(waypointDistance <= 0.25f)
+                m_nextWaypoint = waypointIndex + 1;
+
+            if(m_nextWaypoint == waypointIndex) {
+                foundWaypoint = true;
+                targetPosition = childPosition;
+                break;
             }
         }
 
         if(!foundWaypoint) {
             m_walking = false;
-            return;
+            return false;
         }
 
-        ChangeDirection(transform.position.x - targetWaypoint.position.x >= 0);
-        transform.position = Vector2.MoveTowards(transform.position, targetWaypoint.position, GetSpeedFactor() * Time.deltaTime);
+        ChangeDirection(transform.position.x - targetPosition.x >= 0);
+        transform.position = Vector2.MoveTowards(transform.position, targetPosition, GetSpeedFactor() * Time.deltaTime);
         m_walking = true;
+        return true;
+    }
+
+    protected override void OnDeath()
+    {
+        base.OnDeath();
+        if(m_goldReward > 0)
+            m_gameManager.AddGold(m_goldReward);
     }
 }
