@@ -34,7 +34,6 @@ public class Monsters : MonoBehaviour
 
     private int m_lastSpawnId = -1;
     private float m_spawnIntervalEndTime = 0;
-    private const int m_spawnInterval = 5000;
 
     // Start is called before the first frame update
     void Start() { }
@@ -42,18 +41,24 @@ public class Monsters : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (m_lastSpawnId >= m_spawnOrder.Count - 1 || m_spawnIntervalEndTime > Mathf.Round(Time.time*1000))
+        if(m_lastSpawnId >= m_spawnOrder.Count - 1 || m_spawnIntervalEndTime > Mathf.Round(Time.time*1000))
             return;
 
-        m_spawnIntervalEndTime = Mathf.Round(Time.time*1000) + m_spawnInterval;
+        float speedFactor = Time.timeSinceLevelLoad / 5;
+        float spawnInterval = Mathf.Max(0, 1500 - 50 * speedFactor);
+        float waveFactor = 1 + Time.timeSinceLevelLoad / 15;
+
+        m_spawnIntervalEndTime = Mathf.Round(Time.time*1000) + 500 + spawnInterval;
         //m_lastSpawnId++;
         m_lastSpawnId = 0;
-        SpawnMonster(m_spawnOrder[m_lastSpawnId]);
+        SpawnMonster(m_spawnOrder[m_lastSpawnId], waveFactor);
     }
 
-    public void SpawnMonster(int id)
+    public void SpawnMonster(int id, float waveFactor)
     {
         List<Transform> spawnPositions = m_spawnPositions[m_monsters[id].spawnId].spawnPositions;
         GameObject monster = Instantiate(m_monsters[id].monsterPrefab, spawnPositions[Random.Range(0, spawnPositions.Count)].position, Quaternion.identity, gameObject.transform);
+        Creature creature = monster.GetComponent<Creature>();
+        creature.SetBaseHealth((int)(creature.GetMaxHealth() * waveFactor), true);
     }
 }

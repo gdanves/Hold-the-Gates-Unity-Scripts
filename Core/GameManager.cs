@@ -5,8 +5,25 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
 
+[System.Serializable]
+public struct UnitInfo
+{
+    public GameObject prefab;
+    public int price;
+    public string unitRef;
+
+    public UnitInfo(string _unitRef, GameObject _prefab, int _price)
+    {
+        unitRef = _unitRef;
+        prefab = _prefab;
+        price = _price;
+    }
+}
+
 public class GameManager : MonoBehaviour
 {
+    public List<UnitInfo> m_units;
+
     //[SerializeField] public SaveManager _saveManager;
     public static GameManager m_instance;
 
@@ -16,9 +33,11 @@ public class GameManager : MonoBehaviour
     public GameObject m_menuEnd;
     //public GameObject m_menuMain;
     public TMP_Text m_menuGameGoldText;
+    public TMP_Text m_menuEndText;
     //public Slider m_healthSlider;
 
     int m_gold;
+    int m_score;
 
     void Awake()
     {
@@ -76,6 +95,7 @@ public class GameManager : MonoBehaviour
     public void EndGame(bool won = false)
     {
         Time.timeScale = 0f;
+        m_menuEndText.text = "Game Over!\nScore: " + m_score;
         m_menuEnd.SetActive(true);
     }
 
@@ -85,16 +105,51 @@ public class GameManager : MonoBehaviour
         UpdateGoldText();
     }
 
+    public void AddScore(int value)
+    {
+        m_score += value;
+    }
+
+    public int GetUnitPrice(string unitRef)
+    {
+        foreach(UnitInfo unit in m_units) {
+            if(unit.unitRef == unitRef)
+                return unit.price;
+        }
+        return 0;
+    }
+
+    public GameObject GetUnitPrefab(string unitRef)
+    {
+        foreach(UnitInfo unit in m_units) {
+            if(unit.unitRef == unitRef)
+                return unit.prefab;
+        }
+        return null;
+    }
+
+    public bool BuyUnit(string unitRef)
+    {
+        int price = GetUnitPrice(unitRef);
+        if(price == 0 || m_gold < price)
+            return false;
+        AddGold(-price);
+        return true;
+    }
+
     private void CopyLocalReferences(GameManager other)
     {
         m_menuGame = other.m_menuGame;
         m_menuEnd = other.m_menuEnd;
+        m_menuEndText = other.m_menuEndText;
         m_menuGameGoldText = other.m_menuGameGoldText;
+        m_units = other.m_units;
     }
 
     private void ResetStates()
     {
-        m_gold = 0;
+        m_gold = 20;
+        m_score = 0;
         ResetHealthPercent();
         UpdateGoldText();
     }
@@ -103,7 +158,7 @@ public class GameManager : MonoBehaviour
     {
         if(!m_menuGameGoldText)
             return;
-        m_menuGameGoldText.text = "Gold: " + m_gold;
+        m_menuGameGoldText.text = m_gold.ToString();
     }
 
     private void MakeSingleton()

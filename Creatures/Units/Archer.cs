@@ -47,8 +47,8 @@ public class Archer : Unit
 
         TurnToTarget();
         m_animator.Play("Attack_bow_front");
-        AddSkillTime(1500);
-        AddSelfStunTime(800);
+        AddSkillTime(500);
+        AddSelfStunTime(500);
         Invoke("UseBasicAttack", 0.4f);
         return true;
     }
@@ -85,7 +85,7 @@ public class Archer : Unit
         Quaternion rotation = Quaternion.Euler(0, 0, Mathf.Atan2(m_dir.y, m_dir.x) * Mathf.Rad2Deg);
         GameObject arrow = (GameObject) Instantiate(m_arrowPrefab, m_arrowSpawnFront.position, rotation);
         arrow.transform.localScale = transform.localScale;
-        arrow.GetComponent<Rigidbody2D>().velocity = m_dir * 15f;
+        arrow.GetComponent<Rigidbody2D>().velocity = m_dir * 20f;
         arrow.GetComponent<Projectile>().SetAttacker(gameObject);
         arrow.GetComponent<Projectile>().SetTargetTag("Monster");
         arrow.GetComponent<Projectile>().SetDamage(GetAttack());

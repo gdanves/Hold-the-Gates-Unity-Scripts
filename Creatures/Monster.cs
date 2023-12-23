@@ -99,5 +99,7 @@ public class Monster : Creature
         base.OnDeath();
         if(m_goldReward > 0)
             m_gameManager.AddGold(m_goldReward);
+        m_gameManager.AddScore(1);
+        Invoke("FadeAndDestroy", 1f);
     }
 }

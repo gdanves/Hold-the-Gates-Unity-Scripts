@@ -95,6 +95,11 @@ public class Creature : MonoBehaviour
         AddConditionTime(Condition.SelfStun, duration);
     }
 
+    public void SetBaseHealth(int health, bool updateCurrent = false)
+    {
+        m_stats[(int)Stat.Health].SetBaseValue(health, updateCurrent);
+    }
+
     public virtual bool TakeDamage(GameObject attacker, int damage)
     {
         if(!IsAlive())
@@ -222,6 +227,11 @@ public class Creature : MonoBehaviour
         return MathExt.GetDistanceBetween(GetHitboxCenterPosition(), creature.GetHitboxCenterPosition());
     }
 
+    public void FadeAndDestroy()
+    {
+        StartCoroutine(FadeOutMaterial(1f));
+    }
+
     protected void SetStats(params int[] list)
     {
         for(int i = 0; i < list.Length; i++)
@@ -291,5 +301,21 @@ public class Creature : MonoBehaviour
     private bool HasCondition(Condition condition)
     {
         return Util.GetTimeMillis() < m_conditionTimes[(int)condition];
+    }
+
+    private IEnumerator FadeOutMaterial(float fadeSpeed)
+    {
+        Renderer rend = transform.GetComponent<Renderer>();
+        Color matColor = rend.material.color;
+        float alphaValue = rend.material.color.a;
+
+        while(rend.material.color.a > 0f)
+        {
+            alphaValue -= Time.deltaTime / fadeSpeed;
+            rend.material.color = new Color(matColor.r, matColor.g, matColor.b, alphaValue);
+            yield return null;
+        }
+
+        Destroy(gameObject);
     }
 }

@@ -15,9 +15,10 @@ public class CreatureStat
         m_statModifiersPercent = new List<float>();
     }
 
-    public void SetBaseValue(int baseValue)
+    public void SetBaseValue(int baseValue, bool updateCurrent = true)
     {
-        m_value = (float)baseValue;
+        if(updateCurrent || baseValue < m_value)
+            m_value = (float)baseValue;
         m_baseValue = baseValue;
     }
 
