@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Archer : Unit
+public class Necromancer : Unit
 {
     [Header("Arrow config")]
     [SerializeField]
@@ -46,9 +46,10 @@ public class Archer : Unit
             return false;
 
         TurnToTarget();
-        m_animator.Play("Attack_bow_front");
+        m_animator.Play("Attack_start");
         AddSkillTime(500);
         AddSelfStunTime(500);
+        AddTargetLockTime(500);
         Invoke("UseBasicAttack", 0.4f);
         return true;
     }
@@ -68,27 +69,41 @@ public class Archer : Unit
 
     private void UseBasicAttack()
     {
-        if(!m_target || !IsAlive() || !m_target.IsAlive() || IsStunned(true)) {
+        if(!m_target || !IsAlive() || IsStunned(true)) {
             m_animator.Play("Idle");
             return;
         }
 
+        AddSkillTime(500);
+        AddSelfStunTime(500);
         TurnToTarget();
-
-        // fire the arrow
-        m_animator.Play("Attack_bow_end");
         FireBasicAttack();
+        Invoke("EndBasicAttackAnimation", 0.2f);
+    }
+
+    private void EndBasicAttackAnimation()
+    {
+        m_animator.Play("Attack_end");
     }
 
     private void FireBasicAttack()
     {
-        Quaternion rotation = Quaternion.Euler(0, 0, Mathf.Atan2(m_dir.y, m_dir.x) * Mathf.Rad2Deg);
-        GameObject arrow = (GameObject) Instantiate(m_arrowPrefab, m_arrowSpawnFront.position, rotation);
-        arrow.transform.localScale = transform.localScale;
-        arrow.GetComponent<Rigidbody2D>().velocity = m_dir * 20f;
-        arrow.GetComponent<Projectile>().SetAttacker(gameObject);
-        arrow.GetComponent<Projectile>().SetTargetTag("Monster");
-        arrow.GetComponent<Projectile>().SetDamage(GetAttack());
-        Destroy(arrow, 2);
+        Vector3 pos = m_arrowSpawnFront.position;
+        if(IsFlipped())
+            pos.x -= m_arrowSpawnFront.transform.localPosition.x * transform.localScale.x * 2;
+
+        Vector2 targetPos = m_target.GetHitboxCenterPosition();
+        Vector2 dir = targetPos - new Vector2(pos.x, pos.y);
+        dir.Normalize();
+
+        Quaternion rotation = Quaternion.Euler(0, 0, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
+        GameObject beam = (GameObject) Instantiate(m_arrowPrefab, pos, rotation);
+        beam.transform.localScale = transform.localScale;
+        beam.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
+        beam.GetComponent<Projectile>().SetAttacker(gameObject);
+        beam.GetComponent<Projectile>().SetTargetTag("Monster");
+        beam.GetComponent<Projectile>().SetDamage(GetAttack());
+        beam.GetComponent<Projectile>().FadeOut(0.5f);
+        beam.GetComponent<Projectile>().SetDisableOnTrigger(false);
     }
 }

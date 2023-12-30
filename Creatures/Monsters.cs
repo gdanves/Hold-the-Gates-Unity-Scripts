@@ -44,9 +44,9 @@ public class Monsters : MonoBehaviour
         if(m_lastSpawnId >= m_spawnOrder.Count - 1 || m_spawnIntervalEndTime > Mathf.Round(Time.time*1000))
             return;
 
-        float speedFactor = Time.timeSinceLevelLoad / 5;
-        float spawnInterval = Mathf.Max(0, 1500 - 50 * speedFactor);
-        float waveFactor = 1 + Time.timeSinceLevelLoad / 15;
+        float speedFactor = Time.timeSinceLevelLoad / 4.5f;
+        float spawnInterval = Mathf.Max(0, 3000 - 50 * speedFactor);
+        float waveFactor = 1 + Time.timeSinceLevelLoad / 12.5f;
 
         m_spawnIntervalEndTime = Mathf.Round(Time.time*1000) + 500 + spawnInterval;
         //m_lastSpawnId++;
@@ -58,7 +58,7 @@ public class Monsters : MonoBehaviour
     {
         List<Transform> spawnPositions = m_spawnPositions[m_monsters[id].spawnId].spawnPositions;
         GameObject monster = Instantiate(m_monsters[id].monsterPrefab, spawnPositions[Random.Range(0, spawnPositions.Count)].position, Quaternion.identity, gameObject.transform);
-        Creature creature = monster.GetComponent<Creature>();
+        Creature creature = monster.AsCreature();
         creature.SetBaseHealth((int)(creature.GetMaxHealth() * waveFactor), true);
     }
 }

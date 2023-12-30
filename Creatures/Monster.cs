@@ -31,7 +31,7 @@ public class Monster : Creature
             return;
 
         if(!m_target)
-            m_target = GameObject.Find("Gate").GetComponent<Creature>();
+            m_target = GameObject.Find("Gate").AsCreature();
 
         if(CanAttackTarget() && !CanApproachTarget())
             Attack();

@@ -23,7 +23,7 @@ public class Unit : Creature
         if(!IsAlive())
             return;
 
-        if(!m_target || !CanTargetCreature(m_target))
+        if(!m_target || (!IsTargetLocked() && !CanTargetCreature(m_target)))
             m_target = FindClosestTarget("Monster");
 
         if(m_target && CanAttackTarget())

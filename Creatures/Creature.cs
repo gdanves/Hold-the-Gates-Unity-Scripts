@@ -7,6 +7,7 @@ enum Condition
     Skill,
     Stun,
     SelfStun,
+    TargetLock,
     Last
 }
 
@@ -95,6 +96,11 @@ public class Creature : MonoBehaviour
         AddConditionTime(Condition.SelfStun, duration);
     }
 
+    public void AddTargetLockTime(int duration)
+    {
+        AddConditionTime(Condition.TargetLock, duration);
+    }
+
     public void SetBaseHealth(int health, bool updateCurrent = false)
     {
         m_stats[(int)Stat.Health].SetBaseValue(health, updateCurrent);
@@ -161,6 +167,11 @@ public class Creature : MonoBehaviour
     public bool IsUsingSkills()
     {
         return HasCondition(Condition.Skill);
+    }
+
+    public bool IsTargetLocked()
+    {
+        return HasCondition(Condition.TargetLock);
     }
 
     public bool CanApproachCreature(Creature creature)
@@ -232,6 +243,13 @@ public class Creature : MonoBehaviour
         StartCoroutine(FadeOutMaterial(1f));
     }
 
+    public bool IsFlipped()
+    {
+        if(!m_spriteRenderer)
+            return false;
+        return m_spriteRenderer.flipX;
+    }
+
     protected void SetStats(params int[] list)
     {
         for(int i = 0; i < list.Length; i++)
@@ -244,12 +262,12 @@ public class Creature : MonoBehaviour
         Creature closestTarget = null;
         GameObject[] targets = GameObject.FindGameObjectsWithTag(tag);
         foreach(GameObject target in targets) {
-            if(!target.GetComponent<Creature>().IsAlive())
+            if(!target.AsCreature().IsAlive())
                 continue;
             float distance = MathExt.GetDistanceBetween(transform.position, target.transform.position);
             if(distance <= m_targetViewRange && (!closestTarget || distance < closestDistance)) {
                 closestDistance = distance;
-                closestTarget = target.GetComponent<Creature>();
+                closestTarget = target.AsCreature();
             }
         }
         return closestTarget;

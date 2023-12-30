@@ -31,6 +31,7 @@ public class GameManager : MonoBehaviour
     public GameObject m_menuGame;
     //public GameObject m_menuIngame;
     public GameObject m_menuEnd;
+    public GameObject m_game;
     //public GameObject m_menuMain;
     public TMP_Text m_menuGameGoldText;
     public TMP_Text m_menuEndText;
@@ -99,6 +100,11 @@ public class GameManager : MonoBehaviour
         m_menuEnd.SetActive(true);
     }
 
+    public void ShowUnits(GameObject spot)
+    {
+        m_game.AsGame().ShowUnits(spot);
+    }
+
     public void AddGold(int value)
     {
         m_gold += value;
@@ -108,6 +114,11 @@ public class GameManager : MonoBehaviour
     public void AddScore(int value)
     {
         m_score += value;
+    }
+
+    public int GetGold()
+    {
+        return m_gold;
     }
 
     public int GetUnitPrice(string unitRef)
@@ -144,6 +155,7 @@ public class GameManager : MonoBehaviour
         m_menuEndText = other.m_menuEndText;
         m_menuGameGoldText = other.m_menuGameGoldText;
         m_units = other.m_units;
+        m_game = other.m_game;
     }
 
     private void ResetStates()

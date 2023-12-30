@@ -8,6 +8,7 @@ public class Projectile : MonoBehaviour
     private string m_targetTag;
     private int m_damage = 0;
     private bool m_enabled;
+    private bool m_disableOnTrigger = true;
 
     void Awake()
     {
@@ -39,12 +40,40 @@ public class Projectile : MonoBehaviour
         m_damage = damage;
     }
 
+    public void FadeOut(float timeFactor)
+    {
+        StartCoroutine(FadeOutMaterial(timeFactor));
+    }
+
+    public void SetDisableOnTrigger(bool disable)
+    {
+        m_disableOnTrigger = disable;
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (m_enabled && other.gameObject.tag == m_targetTag && !other.isTrigger) {
+        if(m_enabled && other.gameObject.tag == m_targetTag && !other.isTrigger) {
             other.GetComponent<Creature>().TakeDamage(m_attacker, m_damage);
-            m_enabled = false;
-            Destroy(gameObject, 0.1f);
+            if(m_disableOnTrigger) {
+                m_enabled = false;
+                Destroy(gameObject, 0.1f);
+            }
         }
+    }
+
+    private IEnumerator FadeOutMaterial(float timeFactor)
+    {
+        Renderer rend = transform.GetComponent<Renderer>();
+        Color matColor = rend.material.color;
+        float alphaValue = rend.material.color.a;
+
+        while(rend.material.color.a > 0f)
+        {
+            alphaValue -= Time.deltaTime / timeFactor;
+            rend.material.color = new Color(matColor.r, matColor.g, matColor.b, alphaValue);
+            yield return null;
+        }
+
+        Destroy(gameObject);
     }
 }
